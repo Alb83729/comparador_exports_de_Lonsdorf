@@ -35,10 +35,10 @@ comparison_data <- data.frame(
   Lonsdorf_Medio_Archivo1 = data1_selected$Lonsdorf_Medio,
   Lonsdorf_Medio_Archivo2 = data2_selected$Lonsdorf_Medio
 )
-
 # Calcular la correlación de Pearson
 correlation <- cor(comparison_data$Lonsdorf_Medio_Archivo1, comparison_data$Lonsdorf_Medio_Archivo2, method = 'pearson')
 print(correlation)
+
 # Crear la nube de puntos
 scatter_plot <- ggplot(comparison_data, aes(x = Lonsdorf_Medio_Archivo1, y = Lonsdorf_Medio_Archivo2)) +
   geom_point() +
@@ -47,14 +47,24 @@ scatter_plot <- ggplot(comparison_data, aes(x = Lonsdorf_Medio_Archivo1, y = Lon
        y = "Lonsdorf_Medio Archivo 2") +
   theme_minimal()
 
-# Crear el gráfico de correlación
-correlation_plot <- ggplot() +
-  geom_text(aes(x = 1, y = 1, label = paste("Correlación de Pearson:", round(correlation, 2))), size = 6) +
-  xlim(0.5, 1.5) + ylim(0.5, 1.5) +
-  theme_void() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  labs(title = "Correlación de Pearson")
+# Calcular la correlación de Pearson y su p-valor
+cor_test_result <- cor.test(df_comparison$Lonsdorf_Medio1, df_comparison$Lonsdorf_Medio2)
 
-# Mostrar ambos gráficos
-print(scatter_plot)
-print(correlation_plot)
+# Imprimir el resultado de la prueba de correlación en consola
+print(cor_test_result)
+
+# Crear un gráfico adicional para mostrar la correlación de Pearson
+df_correlation <- data.frame(
+  Correlation = cor_test_result$estimate,
+  PValue = cor_test_result$p.value
+)
+
+ggplot(df_correlation, aes(x = factor(1), y = Correlation)) +
+  geom_bar(stat = 'identity') +
+  geom_text(aes(label = sprintf("r = %.2f\np = %.3f", Correlation, PValue)), vjust = -0.5) +
+  labs(title = 'Correlación de Pearson entre Lonsdorf_Medio de ambos archivos',
+       x = '',
+       y = 'Correlación de Pearson') +
+  theme_minimal() +
+  ylim(-1, 1)
+
